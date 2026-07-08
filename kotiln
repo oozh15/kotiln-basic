@@ -179,3 +179,99 @@ Pro-Tip for Avoiding ConfusionIf you ever feel lost about what a component can d
 
 
 
+To connect two pages (Activities) and pass data between them, you use **`Intent`** objects. An `Intent` is like a "message" you send from one page to another.
+
+Here is the professional way to do it.
+
+---
+
+### 1. Sending Data (From Page 1)
+
+In Page 1, when the user clicks "Submit," you "attach" the data to the Intent using `putExtra`. Think of this as putting a letter inside an envelope before you send it.
+
+**Kotlin (Page 1):**
+
+```kotlin
+val intent = Intent(this, SecondActivity::class.java)
+
+// "USER_NAME" is the key, 'data' is the value
+intent.putExtra("USER_NAME", input.text.toString()) 
+
+startActivity(intent)
+
+```
+
+---
+
+### 2. Receiving Data (In Page 2)
+
+In Page 2, you open the "envelope" to extract the data using the same key you used in Page 1.
+
+**Kotlin (Page 2):**
+
+```kotlin
+// Get the data that was sent
+val receivedName = intent.getStringExtra("USER_NAME")
+
+// Use it
+resultTextView.text = "Hello, $receivedName!"
+
+```
+
+---
+
+### 3. The "3-Step" Navigation Trick
+
+When working with multiple pages, always follow this flow to avoid confusion:
+
+1. **Define the Key:** Always define your keys as constants so you don't make typos.
+* `val KEY_NAME = "NAME_KEY"`
+
+
+2. **Pass the Intent:** Use `intent.putExtra` for basic types (String, Int, Boolean).
+3. **Handle the Null:** Always consider that the data might not arrive (it could be null).
+* *Safe way:* `val name = intent.getStringExtra("KEY") ?: "Default Value"`
+
+
+
+---
+
+### 4. Pro-Tricks for Data Handling
+
+#### A. The "Singleton" Trick (For Large Lists)
+
+If you need to pass a **huge list** (like 100+ tasks) between pages, **do not** use Intents. It can make the app slow.
+
+* **The Trick:** Create a "Repository" object (a separate Kotlin file).
+* **How:**
+```kotlin
+object DataRepository {
+    val taskList = ArrayList<String>()
+}
+
+```
+
+
+* Now, both Page 1 and Page 2 can access `DataRepository.taskList` directly. It’s like a shared whiteboard in your app.
+
+#### B. The "Result" Trick (Returning Data)
+
+Sometimes Page 2 needs to send data *back* to Page 1.
+
+* **The Trick:** Use `registerForActivityResult`. This is the modern, professional way to say: "Open Page 2, and when you are done, come back here with this specific data."
+
+---
+
+### 5. Summary Checklist for your Two-Page App
+
+* [ ] **Manifest File:** Did you add your new Activity to `AndroidManifest.xml`? (Android Studio usually does this automatically when you create a new Activity).
+* [ ] **Unique Keys:** Is your `putExtra` key (e.g., `"USER_NAME"`) exactly the same as the one in `getStringExtra`?
+* [ ] **Null Safety:** Did you add the `?: "Default"` or a check to see if the data is empty?
+
+**Try this right now:**
+
+1. Create a second Activity (`Right-click package -> New -> Activity -> Empty Views Activity`).
+2. Use the `Intent` template to open it from a button on your first page.
+3. Send a simple String (like "Testing") to the second page and display it in a `TextView`.
+
+**Does this "Envelope/Key" concept make sense for how pages communicate, or would you like to see how to use the "Singleton" repository for that large task list?**
